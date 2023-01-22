@@ -62,10 +62,7 @@ public class ConnectionSolver {
         }
     }
 
-    public void add_avoid_collision_against_modules() {
 
-
-    }
     public void solve_connection_wrapper() {
 
     }
