@@ -1,6 +1,8 @@
 import chip.connection.Connection;
 import chip.layer.Layer;
+import dev.yushen.wrapperapi.gurobi.solver.Model;
 import dev.yushen.wrapperapi.gurobi.variable.IntegerVariable;
+import gurobi.GRBException;
 
 public class solve_ChannelSegment {
     private IntegerVariable x1;
@@ -18,7 +20,6 @@ public class solve_ChannelSegment {
         this.connection = connection;
         this.layer = layer;
     }
-
     public Layer getLayer() {
         return this.layer;
     }

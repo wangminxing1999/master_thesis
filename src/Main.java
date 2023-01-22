@@ -6,11 +6,7 @@ import gurobi.GRBException;
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) {
-        int a[] = {1,2,3,4};
-        for( int i = 0; i < a.length; i++) {
-            a[i] ++;
-        }
-        System.out.println(a[0]);
+    public static void main(String[] args) throws GRBException {
+
     }
 }
