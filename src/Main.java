@@ -26,7 +26,7 @@ public class Main {
         layers.add(l0);
         chip.setLayers(layers);
         Module m1 = new Filter("m1", 10 , 20);
-        Module m2 = new Filter("m2", 20, 15);
+        Module m2 = new Filter("m2", 20, 16);
         Pin p1 = new Pin(15,25);
         Pin p2 = new Pin(60,50);
         Pin p3 = new Pin(20,25);
