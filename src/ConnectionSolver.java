@@ -115,15 +115,56 @@ public class ConnectionSolver {
                     BinaryVariable b2 = model.binVar("b2");
                     BinaryVariable b3 = model.binVar("b3");
                     BinaryVariable b4 = model.binVar("b4");
-                    model.post(b1.add(b2).add(b3).add(b4), '=', 3);
-                    model.post(solve_channelSegments.get(k).getX1().sub(b1.mul(model.M())), '<', left);
-                    model.post(solve_channelSegments.get(k).getX2().sub(b1.mul(model.M())), '<', left);
-                    model.post(solve_channelSegments.get(k).getX1().add(b2.mul(model.M())), '>', right);
-                    model.post(solve_channelSegments.get(k).getX2().add(b2.mul(model.M())), '>', right);
-                    model.post(solve_channelSegments.get(k).getY1().sub(b3.mul(model.M())), '<', down);
-                    model.post(solve_channelSegments.get(k).getY2().sub(b3.mul(model.M())), '<', down);
-                    model.post(solve_channelSegments.get(k).getY1().add(b4.mul(model.M())), '>', up);
-                    model.post(solve_channelSegments.get(k).getY2().add(b4.mul(model.M())), '>', up);
+                    BinaryVariable b5 = model.binVar("b5");
+                    BinaryVariable b6 = model.binVar("b6");
+                    BinaryVariable b7 = model.binVar("b7");
+                    BinaryVariable b8 = model.binVar("b8");
+                    model.post(b1.add(b2).add(b3).add(b4).add(b5).add(b6).add(b7).add(b8),'=',7);
+
+                    model.post(solve_channelSegments.get(k).getY1(),'<',solve_channelSegments.get(k).getY2().add(b1.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY2(),'<',solve_channelSegments.get(k).getY1().add(b1.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY1().add(this.margin).sub(b1.mul(model.M())),'<',down);
+
+                    model.post(solve_channelSegments.get(k).getY1(),'<',solve_channelSegments.get(k).getY2().add(b2.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY2(),'<',solve_channelSegments.get(k).getY1().add(b2.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY1().sub(this.margin).add(b2.mul(model.M())),'>',up);
+
+                    model.post(solve_channelSegments.get(k).getY1(),'<',solve_channelSegments.get(k).getY2().add(b3.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY2(),'<',solve_channelSegments.get(k).getY1().add(b3.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY1().add(b3.mul(model.M())),'>',down);
+                    model.post(solve_channelSegments.get(k).getY1().sub(b3.mul(model.M())),'<',up);
+                    model.post(solve_channelSegments.get(k).getX1().sub(b3.mul(model.M())),'<',left);
+                    model.post(solve_channelSegments.get(k).getX2().sub(b3.mul(model.M())),'<',left);
+
+                    model.post(solve_channelSegments.get(k).getY1(),'<',solve_channelSegments.get(k).getY2().add(b4.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY2(),'<',solve_channelSegments.get(k).getY1().add(b4.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY1().add(b4.mul(model.M())),'>',down);
+                    model.post(solve_channelSegments.get(k).getY1().sub(b4.mul(model.M())),'<',up);
+                    model.post(solve_channelSegments.get(k).getX1().add(b4.mul(model.M())),'>',right);
+                    model.post(solve_channelSegments.get(k).getX2().add(b4.mul(model.M())),'>',right);
+
+                    model.post(solve_channelSegments.get(k).getX1(),'<',solve_channelSegments.get(k).getX2().add(b5.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX2(),'<',solve_channelSegments.get(k).getX1().add(b5.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX1().add(this.margin).sub(b5.mul(model.M())),'<',left);
+
+                    model.post(solve_channelSegments.get(k).getX1(),'<',solve_channelSegments.get(k).getX2().add(b6.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX2(),'<',solve_channelSegments.get(k).getX1().add(b6.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX1().sub(this.margin).add(b6.mul(model.M())),'>',right);
+
+                    model.post(solve_channelSegments.get(k).getX1(),'<',solve_channelSegments.get(k).getX2().add(b7.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX2(),'<',solve_channelSegments.get(k).getX1().add(b7.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX1().add(b7.mul(model.M())),'>',left);
+                    model.post(solve_channelSegments.get(k).getX1().sub(b7.mul(model.M())),'<',right);
+                    model.post(solve_channelSegments.get(k).getY1().sub(b7.mul(model.M())),'<',down);
+                    model.post(solve_channelSegments.get(k).getY2().sub(b7.mul(model.M())),'<',down);
+
+                    model.post(solve_channelSegments.get(k).getX1(),'<',solve_channelSegments.get(k).getX2().add(b8.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX2(),'<',solve_channelSegments.get(k).getX1().add(b8.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX1().add(b8.mul(model.M())),'>',left);
+                    model.post(solve_channelSegments.get(k).getX1().sub(b8.mul(model.M())),'<',right);
+                    model.post(solve_channelSegments.get(k).getY1().add(b8.mul(model.M())),'>',up);
+                    model.post(solve_channelSegments.get(k).getY2().add(b8.mul(model.M())),'>',up);
+
                 }
             }
 
@@ -133,27 +174,82 @@ public class ConnectionSolver {
                     BinaryVariable b2 = model.binVar("b2");
                     BinaryVariable b3 = model.binVar("b3");
                     BinaryVariable b4 = model.binVar("b4");
-                    model.post(b1.add(b2).add(b3).add(b4), '=',3);
-                    //1
-                    model.post(solve_channelSegments.get(j).getX1(),'<', solve_channelSegments.get(k).getX1().add(b1.mul(model.M())).add(this.margin));
-                    model.post(solve_channelSegments.get(j).getX1(),'<', solve_channelSegments.get(k).getX2().add(b1.mul(model.M())).add(this.margin));
-                    model.post(solve_channelSegments.get(j).getX2(),'<', solve_channelSegments.get(k).getX1().add(b1.mul(model.M())).add(this.margin));
-                    model.post(solve_channelSegments.get(j).getX2(),'<', solve_channelSegments.get(k).getX2().add(b1.mul(model.M())).add(this.margin));
-                    //2
-                    model.post(solve_channelSegments.get(j).getX1().add(b2.mul(model.M()).add(this.margin)), '>', solve_channelSegments.get(k).getX1());
-                    model.post(solve_channelSegments.get(j).getX1().add(b2.mul(model.M()).add(this.margin)), '>', solve_channelSegments.get(k).getX2());
-                    model.post(solve_channelSegments.get(j).getX2().add(b2.mul(model.M()).add(this.margin)), '>', solve_channelSegments.get(k).getX1());
-                    model.post(solve_channelSegments.get(j).getX2().add(b2.mul(model.M()).add(this.margin)), '>', solve_channelSegments.get(k).getX2());
-                    //3
-                    model.post(solve_channelSegments.get(j).getY1(),'<', solve_channelSegments.get(k).getY1().add(b3.mul(model.M())).add(this.margin));
-                    model.post(solve_channelSegments.get(j).getY1(),'<', solve_channelSegments.get(k).getY2().add(b3.mul(model.M())).add(this.margin));
-                    model.post(solve_channelSegments.get(j).getY2(),'<', solve_channelSegments.get(k).getY1().add(b3.mul(model.M())).add(this.margin));
-                    model.post(solve_channelSegments.get(j).getY2(),'<', solve_channelSegments.get(k).getY2().add(b3.mul(model.M())).add(this.margin));
-                    //4
-                    model.post(solve_channelSegments.get(j).getY1().add(b4.mul(model.M())).add(this.margin), '>', solve_channelSegments.get(k).getY1());
-                    model.post(solve_channelSegments.get(j).getY1().add(b4.mul(model.M())).add(this.margin), '>', solve_channelSegments.get(k).getY2());
-                    model.post(solve_channelSegments.get(j).getY2().add(b4.mul(model.M())).add(this.margin), '>', solve_channelSegments.get(k).getY1());
-                    model.post(solve_channelSegments.get(j).getY2().add(b4.mul(model.M())).add(this.margin), '>', solve_channelSegments.get(k).getY2());
+                    BinaryVariable b5 = model.binVar("b5");
+                    BinaryVariable b6 = model.binVar("b6");
+                    BinaryVariable b7 = model.binVar("b7");
+                    BinaryVariable b8 = model.binVar("b8");
+                    BinaryVariable b9 = model.binVar("b9");
+                    BinaryVariable b10 = model.binVar("b10");
+
+                    model.post(b1.add(b2).add(b3).add(b4).add(b5).add(b6).add(b7).add(b8).add(b9).add(b10), '=',9);
+
+                    model.post(solve_channelSegments.get(j).getX1().add(b1.mul(model.M())),'>',solve_channelSegments.get(j).getX2());
+                    model.post(solve_channelSegments.get(j).getX2().add(b1.mul(model.M())),'>',solve_channelSegments.get(j).getX1());
+                    model.post(solve_channelSegments.get(k).getX1().add(b1.mul(model.M())),'>',solve_channelSegments.get(k).getX2());
+                    model.post(solve_channelSegments.get(k).getX2().add(b1.mul(model.M())),'>',solve_channelSegments.get(k).getX1());
+                    model.post(model.abs(solve_channelSegments.get(j).getX1().sub(solve_channelSegments.get(k).getX1())).add(b1.mul(model.M())), '>', this.margin);
+
+                    model.post(solve_channelSegments.get(j).getY1().add(b2.mul(model.M())),'>',solve_channelSegments.get(j).getY2());
+                    model.post(solve_channelSegments.get(j).getY2().add(b2.mul(model.M())),'>',solve_channelSegments.get(j).getY1());
+                    model.post(solve_channelSegments.get(k).getY1().add(b2.mul(model.M())),'>',solve_channelSegments.get(k).getY2());
+                    model.post(solve_channelSegments.get(k).getY2().add(b2.mul(model.M())),'>',solve_channelSegments.get(k).getY1());
+                    model.post(model.abs(solve_channelSegments.get(j).getY1().sub(solve_channelSegments.get(k).getY1())).add(b2.mul(model.M())), '>', this.margin);
+
+                    model.post(solve_channelSegments.get(j).getX1().add(b3.mul(model.M())),'>',solve_channelSegments.get(j).getX2());
+                    model.post(solve_channelSegments.get(j).getX2().add(b3.mul(model.M())),'>',solve_channelSegments.get(j).getX1());
+                    model.post(solve_channelSegments.get(k).getY1().add(b3.mul(model.M())),'>',solve_channelSegments.get(k).getY2());
+                    model.post(solve_channelSegments.get(k).getY2().add(b3.mul(model.M())),'>',solve_channelSegments.get(k).getY1());
+                    model.post(solve_channelSegments.get(j).getY1().add(this.margin), '<', solve_channelSegments.get(k).getY1().add(b3.mul(model.M())));
+                    model.post(solve_channelSegments.get(j).getY2().add(this.margin), '<', solve_channelSegments.get(k).getY1().add(b3.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(j).getX1().add(b4.mul(model.M())),'>',solve_channelSegments.get(j).getX2());
+                    model.post(solve_channelSegments.get(j).getX2().add(b4.mul(model.M())),'>',solve_channelSegments.get(j).getX1());
+                    model.post(solve_channelSegments.get(k).getY1().add(b4.mul(model.M())),'>',solve_channelSegments.get(k).getY2());
+                    model.post(solve_channelSegments.get(k).getY2().add(b4.mul(model.M())),'>',solve_channelSegments.get(k).getY1());
+                    model.post(solve_channelSegments.get(j).getY1().sub(this.margin), '>', solve_channelSegments.get(k).getY1().sub(b4.mul(model.M())));
+                    model.post(solve_channelSegments.get(j).getY2().sub(this.margin), '>', solve_channelSegments.get(k).getY1().sub(b4.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(j).getX1().add(b5.mul(model.M())),'>',solve_channelSegments.get(j).getX2());
+                    model.post(solve_channelSegments.get(j).getX2().add(b5.mul(model.M())),'>',solve_channelSegments.get(j).getX1());
+                    model.post(solve_channelSegments.get(k).getY1().add(b5.mul(model.M())),'>',solve_channelSegments.get(k).getY2());
+                    model.post(solve_channelSegments.get(k).getY2().add(b5.mul(model.M())),'>',solve_channelSegments.get(k).getY1());
+                    model.post(solve_channelSegments.get(k).getX1(), '<', solve_channelSegments.get(j).getX1().add(b5.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX2(), '<', solve_channelSegments.get(j).getX1().add(b5.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(j).getX1().add(b6.mul(model.M())),'>',solve_channelSegments.get(j).getX2());
+                    model.post(solve_channelSegments.get(j).getX2().add(b6.mul(model.M())),'>',solve_channelSegments.get(j).getX1());
+                    model.post(solve_channelSegments.get(k).getY1().add(b6.mul(model.M())),'>',solve_channelSegments.get(k).getY2());
+                    model.post(solve_channelSegments.get(k).getY2().add(b6.mul(model.M())),'>',solve_channelSegments.get(k).getY1());
+                    model.post(solve_channelSegments.get(k).getX1(), '>', solve_channelSegments.get(j).getX1().sub(b6.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getX2(), '>', solve_channelSegments.get(j).getX1().sub(b6.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(k).getX1().add(b7.mul(model.M())),'>',solve_channelSegments.get(k).getX2());
+                    model.post(solve_channelSegments.get(k).getX2().add(b7.mul(model.M())),'>',solve_channelSegments.get(k).getX1());
+                    model.post(solve_channelSegments.get(j).getY1().add(b7.mul(model.M())),'>',solve_channelSegments.get(j).getY2());
+                    model.post(solve_channelSegments.get(j).getY2().add(b7.mul(model.M())),'>',solve_channelSegments.get(j).getY1());
+                    model.post(solve_channelSegments.get(k).getY1().add(this.margin), '<', solve_channelSegments.get(j).getY1().add(b7.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY2().add(this.margin), '<', solve_channelSegments.get(j).getY1().add(b7.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(k).getX1().add(b8.mul(model.M())),'>',solve_channelSegments.get(k).getX2());
+                    model.post(solve_channelSegments.get(k).getX2().add(b8.mul(model.M())),'>',solve_channelSegments.get(k).getX1());
+                    model.post(solve_channelSegments.get(j).getY1().add(b8.mul(model.M())),'>',solve_channelSegments.get(j).getY2());
+                    model.post(solve_channelSegments.get(j).getY2().add(b8.mul(model.M())),'>',solve_channelSegments.get(j).getY1());
+                    model.post(solve_channelSegments.get(k).getY1().sub(this.margin), '>', solve_channelSegments.get(j).getY1().sub(b8.mul(model.M())));
+                    model.post(solve_channelSegments.get(k).getY2().sub(this.margin), '>', solve_channelSegments.get(j).getY1().sub(b8.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(k).getX1().add(b9.mul(model.M())),'>',solve_channelSegments.get(k).getX2());
+                    model.post(solve_channelSegments.get(k).getX2().add(b9.mul(model.M())),'>',solve_channelSegments.get(k).getX1());
+                    model.post(solve_channelSegments.get(j).getY1().add(b9.mul(model.M())),'>',solve_channelSegments.get(j).getY2());
+                    model.post(solve_channelSegments.get(j).getY2().add(b9.mul(model.M())),'>',solve_channelSegments.get(j).getY1());
+                    model.post(solve_channelSegments.get(j).getX1(), '<', solve_channelSegments.get(k).getX1().add(b9.mul(model.M())));
+                    model.post(solve_channelSegments.get(j).getX2(), '<', solve_channelSegments.get(k).getX1().add(b9.mul(model.M())));
+
+                    model.post(solve_channelSegments.get(k).getX1().add(b10.mul(model.M())),'>',solve_channelSegments.get(k).getX2());
+                    model.post(solve_channelSegments.get(k).getX2().add(b10.mul(model.M())),'>',solve_channelSegments.get(k).getX1());
+                    model.post(solve_channelSegments.get(j).getY1().add(b10.mul(model.M())),'>',solve_channelSegments.get(j).getY2());
+                    model.post(solve_channelSegments.get(j).getY2().add(b10.mul(model.M())),'>',solve_channelSegments.get(j).getY1());
+                    model.post(solve_channelSegments.get(j).getX1(), '>', solve_channelSegments.get(k).getX1().sub(b10.mul(model.M())));
+                    model.post(solve_channelSegments.get(j).getX2(), '>', solve_channelSegments.get(k).getX1().sub(b10.mul(model.M())));
                 }
             }
         }
