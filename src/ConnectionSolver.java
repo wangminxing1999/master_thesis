@@ -50,6 +50,18 @@ public class ConnectionSolver {
                 IntegerVariable x = model.intVar("x",0,chip.getWidth());
                 IntegerVariable y = model.intVar("y",0,chip.getHeight());
                 this.connection_wrapper[i].via = new solve_Via(this.connection_wrapper[i].getConnection().getPin1().getModule().getLayer(),this.connection_wrapper[i].getConnection().getPin2().getModule().getLayer(), x, y);
+                int id1 = this.connection_wrapper[i].getConnection().getPin1().getModule().getLayer().getId();
+                int id2 = this.connection_wrapper[i].getConnection().getPin2().getModule().getLayer().getId();
+                if(id1 > id2) {
+                    for(int k = id2 + 1; k <= id1 - 1; k++) {
+                        this.layer_content_record[k].store_via.add(this.connection_wrapper[i].via);
+                    }
+                }
+                if(id1 < id2) {
+                    for(int k = id1 + 1; k <= id2 - 1; k++) {
+                        this.layer_content_record[k].store_via.add(this.connection_wrapper[i].via);
+                    }
+                }
             }
         }
     }
@@ -78,9 +90,13 @@ public class ConnectionSolver {
     }
 
     public void add_avoid_collision_against_modules_or_each_other() throws GRBException {
+
         for(int i = 0; i < this.chip.getLayers().size(); i++) {
+
             List<Module> modules = this.chip.getLayers().get(i).getModules();
             List<solve_ChannelSegment> solve_channelSegments = this.layer_content_record[i].store;
+            List<solve_Via> solve_vias = this.layer_content_record[i].store_via;
+
             for(int j = 0; j < modules.size(); j++) {
                 int left = 0, right = 0, up = 0, down = 0;
                 switch(modules.get(j).getOrientation()) {
@@ -110,6 +126,20 @@ public class ConnectionSolver {
                         break;
                 }
 
+                for(int k = 0; k < solve_vias.size(); k++) {
+                    BinaryVariable b1 = model.binVar("b1");
+                    BinaryVariable b2 = model.binVar("b2");
+                    BinaryVariable b3 = model.binVar("b3");
+                    BinaryVariable b4 = model.binVar("b4");
+
+                    model.post(b1.add(b2).add(b3).add(b4), '=', 3);
+
+                    model.post(solve_vias.get(k).getX().add(this.margin).sub(b1.mul(model.M())), '<', left);
+                    model.post(solve_vias.get(k).getX().sub(this.margin).add(b2.mul(model.M())), '>', right);
+                    model.post(solve_vias.get(k).getY().add(this.margin).sub(b3.mul(model.M())), '<', down);
+                    model.post(solve_vias.get(k).getY().sub(this.margin).add(b4.mul(model.M())), '>', up);
+                }
+
                 for(int k = 0; k < solve_channelSegments.size(); k++) {
                     BinaryVariable b1 = model.binVar("b1");
                     BinaryVariable b2 = model.binVar("b2");
@@ -119,6 +149,7 @@ public class ConnectionSolver {
                     BinaryVariable b6 = model.binVar("b6");
                     BinaryVariable b7 = model.binVar("b7");
                     BinaryVariable b8 = model.binVar("b8");
+
                     model.post(b1.add(b2).add(b3).add(b4).add(b5).add(b6).add(b7).add(b8),'=',7);
 
                     model.post(solve_channelSegments.get(k).getY1(),'<',solve_channelSegments.get(k).getY2().add(b1.mul(model.M())));
@@ -165,6 +196,26 @@ public class ConnectionSolver {
                     model.post(solve_channelSegments.get(k).getY1().add(b8.mul(model.M())),'>',up);
                     model.post(solve_channelSegments.get(k).getY2().add(b8.mul(model.M())),'>',up);
 
+                    for(int l = 0; l < solve_vias.size(); l++) {
+                        BinaryVariable c1 = model.binVar("c1");
+                        BinaryVariable c2 = model.binVar("c2");
+                        BinaryVariable c3 = model.binVar("c3");
+                        BinaryVariable c4 = model.binVar("c4");
+
+                        model.post(c1.add(c2).add(c3).add(c4), '=', 3);
+
+                        model.post(solve_vias.get(l).getX().sub(this.margin).add(c1.mul(model.M())), '>', solve_channelSegments.get(k).getX1());
+                        model.post(solve_vias.get(l).getX().sub(this.margin).add(c1.mul(model.M())), '>', solve_channelSegments.get(k).getX2());
+
+                        model.post(solve_vias.get(l).getX().add(this.margin).sub(c2.mul(model.M())), '<', solve_channelSegments.get(k).getX1());
+                        model.post(solve_vias.get(l).getX().add(this.margin).sub(c2.mul(model.M())), '<', solve_channelSegments.get(k).getX2());
+
+                        model.post(solve_vias.get(l).getY().sub(this.margin).add(c3.mul(model.M())), '>', solve_channelSegments.get(k).getY1());
+                        model.post(solve_vias.get(l).getY().sub(this.margin).add(c3.mul(model.M())), '>', solve_channelSegments.get(k).getY2());
+
+                        model.post(solve_vias.get(l).getY().add(this.margin).sub(c4.mul(model.M())), '<', solve_channelSegments.get(k).getY1());
+                        model.post(solve_vias.get(l).getY().add(this.margin).sub(c4.mul(model.M())), '<', solve_channelSegments.get(k).getY2());
+                    }
                 }
             }
 
@@ -260,11 +311,13 @@ public class ConnectionSolver {
 
     public void output() throws GRBException {
         for(int i = 0; i < this.connection_wrapper.length; i++) {
+            System.out.printf("第%d个connection\n", i+1);
+            System.out.printf("via from layer%d to layer%d, x:%d y:%d\n", this.connection_wrapper[i].via.getFrom().getId(), this.connection_wrapper[i].via.getTo().getId(),
+                    this.connection_wrapper[i].via.getX().getValue(), this.connection_wrapper[i].via.getY().getValue());
             for(int j = 0; j < NumOfSegments; j++) {
-                System.out.println(this.connection_wrapper[i].channel_segment[j].getX1().getValue());
-                System.out.println(this.connection_wrapper[i].channel_segment[j].getY1().getValue());
-                System.out.println(this.connection_wrapper[i].channel_segment[j].getX2().getValue());
-                System.out.println(this.connection_wrapper[i].channel_segment[j].getY2().getValue());
+                System.out.printf("第%d段channel x1:%d y1:%d x2:%d y2:%d layer%d\n", j+1, this.connection_wrapper[i].channel_segment[j].getX1().getValue(),
+                        this.connection_wrapper[i].channel_segment[j].getY1().getValue(), this.connection_wrapper[i].channel_segment[j].getX2().getValue(),
+                        this.connection_wrapper[i].channel_segment[j].getY2().getValue(), this.connection_wrapper[i].channel_segment[j].getLayer().getId());
             }
         }
     }
