@@ -6,13 +6,9 @@ import chip.module.Filter;
 import chip.module.Module;
 import chip.module.Orientation;
 import chip.pin.Pin;
-import dev.yushen.wrapperapi.gurobi.solver.Model;
-import dev.yushen.wrapperapi.gurobi.variable.BinaryVariable;
-import dev.yushen.wrapperapi.gurobi.variable.IntegerVariable;
 import gurobi.GRBException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -70,7 +66,7 @@ public class Main {
         chiprequest.addConnection(connection1);
         chiprequest.addConnection(connection2);
         chiprequest.addConnection(connection3);
-        ConnectionSolver cs = new ConnectionSolver(chip,chiprequest,4,1);
+        CS cs = new CS(chip,chiprequest,4,1);
         cs.add_channelsegment_self_constraint();
         cs.add_avoid_collision_against_modules_or_each_other();
         cs.solve();

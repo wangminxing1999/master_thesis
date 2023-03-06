@@ -1,7 +1,5 @@
 import chip.Chip;
 import chip.ChipRequest;
-import chip.connection.ChannelSegment;
-import chip.connection.Connection;
 import chip.module.Module;
 import dev.yushen.wrapperapi.gurobi.solver.Model;
 import dev.yushen.wrapperapi.gurobi.variable.BinaryVariable;
@@ -10,7 +8,7 @@ import gurobi.GRBException;
 
 import java.util.List;
 
-public class ConnectionSolver {
+public class CS {
     private Chip chip;
     private ChipRequest chip_request;
     public ConnectionWrapper[] connection_wrapper;
@@ -19,7 +17,7 @@ public class ConnectionSolver {
     public Store_solve_channelsegments_layers[] layer_content_record;
 
     public int margin;
-    public ConnectionSolver(Chip chip, ChipRequest chip_request, int NumOfSegments, int margin) throws GRBException {
+    public CS(Chip chip, ChipRequest chip_request, int NumOfSegments, int margin) throws GRBException {
         this.margin = margin;
         this.model = new Model("chip_channel_construction");
         this.chip = chip;
