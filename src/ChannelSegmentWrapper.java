@@ -10,8 +10,14 @@ public class ChannelSegmentWrapper {
     public Layer layer;
     private ChannelSegment ch_seg;
 
-    ChannelSegmentWrapper(ChannelSegment ch_seg) {
-        this.ch_seg = ch_seg;
+    ChannelSegmentWrapper(IntegerVariable x1, IntegerVariable y1, IntegerVariable x2, IntegerVariable y2, Connection conn, Layer layer) {
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+        this.conn = conn;
+        this.layer = layer;
+        this.ch_seg = new ChannelSegment(0,0,0,0);
     }
 
     public ChannelSegment getChannelSegment() {

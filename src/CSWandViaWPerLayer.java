@@ -3,15 +3,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CSWandViaWPerLayer {
-    private List<ConnectionWrapper> csw;
+    private List<ChannelSegmentWrapper> csw;
     private List<ViaWrapper> viaw;
 
     CSWandViaWPerLayer() {
-        csw = new ArrayList<ConnectionWrapper>();
+        csw = new ArrayList<ChannelSegmentWrapper>();
         viaw = new ArrayList<ViaWrapper>();
     }
 
-    public void add_csw(ConnectionWrapper cw) {
+    public void add_csw(ChannelSegmentWrapper cw) {
         csw.add(cw);
     }
 
@@ -19,12 +19,12 @@ public class CSWandViaWPerLayer {
         viaw.add(vw);
     }
 
-    public ConnectionWrapper get_csw(int id) {
-        return csw.get(id);
+    public List<ChannelSegmentWrapper> get_csw() {
+        return csw;
     }
 
-    public ViaWrapper get_viaw(int id) {
-        return viaw.get(id);
+    public List<ViaWrapper> get_viaw() {
+        return viaw;
     }
 
     public int get_csw_size() {

@@ -32,7 +32,7 @@ public class Main {
         Pin p2 = new Pin(60,50);
         Pin p3 = new Pin(20,25);
         Pin p4 = new Pin(60,56);
-        Pin p5 = new Pin(15,50);
+        Pin p5 = new Pin(15,40);
         Pin p6 = new Pin(60,42);
         m1.setLayer(l0);
         m1.setX(15);
@@ -62,15 +62,13 @@ public class Main {
         Connection connection1 = new Connection(p1,p2);
         Connection connection2 = new Connection(p3,p4);
         Connection connection3 = new Connection(p5,p6);
-        ChipRequest chiprequest = new ChipRequest();
-        chiprequest.addConnection(connection1);
-        chiprequest.addConnection(connection2);
-        chiprequest.addConnection(connection3);
-        CS cs = new CS(chip,chiprequest,4,1);
-        cs.add_channelsegment_self_constraint();
-        cs.add_avoid_collision_against_modules_or_each_other();
-        cs.solve();
-        cs.output();
-
+        l0.addConnection(connection1);
+        l0.addConnection(connection2);
+        l1.addConnection(connection3);
+        ConnectionChannelSolver ccs = new ConnectionChannelSolver(chip, 10, 3);
+        ccs.solve();
+        SVGGenerator svg = new SVGGenerator(chip);
+        System.out.print(svg.serializeLayer(0));
+        System.out.print(svg.serializeLayer(1));
     }
 }

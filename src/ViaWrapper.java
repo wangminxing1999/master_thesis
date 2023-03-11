@@ -8,8 +8,12 @@ public class ViaWrapper {
     public Layer from,to;
     private Via via;
 
-    public ViaWrapper(Via via) {
-        this.via = via;
+    public ViaWrapper(IntegerVariable x, IntegerVariable y, Layer from, Layer to) {
+        this.x = x;
+        this.y = y;
+        this.from = from;
+        this.to = to;
+        via = new Via(from,to,0,0);
     }
 
     public Via getVia() {
