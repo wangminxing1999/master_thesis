@@ -56,11 +56,45 @@ public class ConnectionChannelSolver {
             layers_content_record[i].add_viaw(vw);
         }
     }
+
+    private int[] compute_pin_exact_position(Pin p) {
+        int x = p.getModule().getX(), y = p.getModule().getY();
+        int w = p.getModule().getWidth(), h = p.getModule().getHeight();
+        switch (p.getModule().getOrientation()){
+            case D90, D270 -> {
+                w = p.getModule().getHeight();
+                h = p.getModule().getWidth();
+            }
+        }
+        int pinX = p.getModule().getX() + p.getX(), pinY = p.getModule().getY() + p.getY();
+        switch (p.getModule().getOrientation()){
+            case D90 -> {
+                pinX = p.getModule().getX() + p.getY();
+                pinY = p.getModule().getY() + h - p.getX();
+            }
+            case D180 -> {
+                pinX = p.getModule().getX() + w - p.getX();
+                pinY = p.getModule().getY() + h - p.getY();
+            }
+            case D270 -> {
+                pinX = p.getModule().getX() + w - p.getY();
+                pinY = p.getModule().getY() + p.getX();
+            }
+        }
+        int[] result = new int[2];
+        result[0] = pinX;
+        result[1] = pinY;
+        return result;
+    }
     private void add_single_connection_channel_constraint(Pin p1, Pin p2, ChannelSegmentWrapper[] csw_group) throws GRBException {
-        model.post(csw_group[0].x1,'=',p1.getX());
-        model.post(csw_group[0].y1,'=',p1.getY());
-        model.post(csw_group[NumOfSegments-1].x2,'=',p2.getX());
-        model.post(csw_group[NumOfSegments-1].y2,'=',p2.getY());
+        int[] result1 = compute_pin_exact_position(p1);
+        int pinX1 = result1[0], pinY1 = result1[1];
+        int[] result2 = compute_pin_exact_position(p2);
+        int pinX2 = result2[0], pinY2 = result2[1];
+        model.post(csw_group[0].x1,'=',pinX1);
+        model.post(csw_group[0].y1,'=',pinY1);
+        model.post(csw_group[NumOfSegments-1].x2,'=',pinX2);
+        model.post(csw_group[NumOfSegments-1].y2,'=',pinY2);
         for(int i = 0; i < NumOfSegments; i++) {
             BinaryVariable b1 = model.binVar("b1");
             BinaryVariable b2 = model.binVar("b2");
@@ -103,29 +137,17 @@ public class ConnectionChannelSolver {
             for(int j = 0; j < modules.size(); j++) {
                 int left = 0, right = 0, up = 0, down = 0;
                 switch(modules.get(j).getOrientation()) {
-                    case D0 :
-                        left = modules.get(j).getX() - modules.get(j).getWidth()/2;
-                        right = modules.get(j).getX() + modules.get(j).getWidth()/2;
-                        down = modules.get(j).getY() - modules.get(j).getHeight()/2;
-                        up = modules.get(j).getY() + modules.get(j).getHeight()/2;
+                    case D0, D180:
+                        left = modules.get(j).getX();
+                        right = modules.get(j).getX() + modules.get(j).getWidth();
+                        down = modules.get(j).getY() + modules.get(j).getHeight();
+                        up = modules.get(j).getY();
                         break;
-                    case D90 :
-                        left = modules.get(j).getX() - modules.get(j).getHeight()/2;
-                        right = modules.get(j).getX() + modules.get(j).getHeight()/2;
-                        down = modules.get(j).getY() - modules.get(j).getWidth()/2;
-                        up = modules.get(j).getY() + modules.get(j).getWidth()/2;
-                        break;
-                    case D180 :
-                        left = modules.get(j).getX() - modules.get(j).getWidth()/2;
-                        right = modules.get(j).getX() + modules.get(j).getWidth()/2;
-                        down = modules.get(j).getY() - modules.get(j).getHeight()/2;
-                        up = modules.get(j).getY() + modules.get(j).getHeight()/2;
-                        break;
-                    case D270 :
-                        left = modules.get(j).getX() - modules.get(j).getHeight()/2;
-                        right = modules.get(j).getX() + modules.get(j).getHeight()/2;
-                        down = modules.get(j).getY() - modules.get(j).getWidth()/2;
-                        up = modules.get(j).getY() + modules.get(j).getWidth()/2;
+                    case D90, D270:
+                        left = modules.get(j).getX();
+                        right = modules.get(j).getX() + modules.get(j).getHeight();
+                        down = modules.get(j).getY() - modules.get(j).getWidth();
+                        up = modules.get(j).getY();
                         break;
                 }
 
@@ -139,8 +161,8 @@ public class ConnectionChannelSolver {
 
                     model.post(vws.get(k).x.add(this.margin).sub(b1.mul(model.M())), '<', left);
                     model.post(vws.get(k).x.sub(this.margin).add(b2.mul(model.M())), '>', right);
-                    model.post(vws.get(k).y.add(this.margin).sub(b3.mul(model.M())), '<', down);
-                    model.post(vws.get(k).y.sub(this.margin).add(b4.mul(model.M())), '>', up);
+                    model.post(vws.get(k).y.sub(this.margin).add(b3.mul(model.M())), '>', down);
+                    model.post(vws.get(k).y.add(this.margin).sub(b4.mul(model.M())), '<', up);
                 }
 
                 for(int k = 0; k < csws.size(); k++) {
@@ -157,23 +179,19 @@ public class ConnectionChannelSolver {
 
                     model.post(csws.get(k).y1,'<',csws.get(k).y2.add(b1.mul(model.M())));
                     model.post(csws.get(k).y2,'<',csws.get(k).y1.add(b1.mul(model.M())));
-                    model.post(csws.get(k).y1.add(this.margin).sub(b1.mul(model.M())),'<',down);
+                    model.post(csws.get(k).y1.sub(this.margin).add(b1.mul(model.M())),'>',down);
 
                     model.post(csws.get(k).y1,'<',csws.get(k).y2.add(b2.mul(model.M())));
                     model.post(csws.get(k).y2,'<',csws.get(k).y1.add(b2.mul(model.M())));
-                    model.post(csws.get(k).y1.sub(this.margin).add(b2.mul(model.M())),'>',up);
+                    model.post(csws.get(k).y1.add(this.margin).sub(b2.mul(model.M())),'<',up);
 
                     model.post(csws.get(k).y1,'<',csws.get(k).y2.add(b3.mul(model.M())));
                     model.post(csws.get(k).y2,'<',csws.get(k).y1.add(b3.mul(model.M())));
-                    model.post(csws.get(k).y1.add(b3.mul(model.M())),'>',down);
-                    model.post(csws.get(k).y1.sub(b3.mul(model.M())),'<',up);
                     model.post(csws.get(k).x1.sub(b3.mul(model.M())),'<',left);
                     model.post(csws.get(k).x2.sub(b3.mul(model.M())),'<',left);
 
                     model.post(csws.get(k).y1,'<',csws.get(k).y2.add(b4.mul(model.M())));
                     model.post(csws.get(k).y2,'<',csws.get(k).y1.add(b4.mul(model.M())));
-                    model.post(csws.get(k).y1.add(b4.mul(model.M())),'>',down);
-                    model.post(csws.get(k).y1.sub(b4.mul(model.M())),'<',up);
                     model.post(csws.get(k).x1.add(b4.mul(model.M())),'>',right);
                     model.post(csws.get(k).x2.add(b4.mul(model.M())),'>',right);
 
@@ -187,17 +205,13 @@ public class ConnectionChannelSolver {
 
                     model.post(csws.get(k).x1,'<',csws.get(k).x2.add(b7.mul(model.M())));
                     model.post(csws.get(k).x2,'<',csws.get(k).x1.add(b7.mul(model.M())));
-                    model.post(csws.get(k).x1.add(b7.mul(model.M())),'>',left);
-                    model.post(csws.get(k).x1.sub(b7.mul(model.M())),'<',right);
-                    model.post(csws.get(k).y1.sub(b7.mul(model.M())),'<',down);
-                    model.post(csws.get(k).y2.sub(b7.mul(model.M())),'<',down);
+                    model.post(csws.get(k).y1.add(b7.mul(model.M())),'>',down);
+                    model.post(csws.get(k).y2.add(b7.mul(model.M())),'>',down);
 
                     model.post(csws.get(k).x1,'<',csws.get(k).x2.add(b8.mul(model.M())));
                     model.post(csws.get(k).x2,'<',csws.get(k).x1.add(b8.mul(model.M())));
-                    model.post(csws.get(k).x1.add(b8.mul(model.M())),'>',left);
-                    model.post(csws.get(k).x1.sub(b8.mul(model.M())),'<',right);
-                    model.post(csws.get(k).y1.add(b8.mul(model.M())),'>',up);
-                    model.post(csws.get(k).y2.add(b8.mul(model.M())),'>',up);
+                    model.post(csws.get(k).y1.sub(b8.mul(model.M())),'<',up);
+                    model.post(csws.get(k).y2.sub(b8.mul(model.M())),'<',up);
                 }
             }
 
